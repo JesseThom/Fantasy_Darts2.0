@@ -1,5 +1,6 @@
 from flask import render_template, redirect, session, request, flash
 from flask_app import app, JSON_FILE, MAXPLAYERS 
+# from flask_app import app,socketio, JSON_FILE, MAXPLAYERS 
 import json
 
 from flask_app.models.model_players import Player #TODO import model file here
@@ -50,12 +51,12 @@ def player_add(pid,tid,pool):
     }
     # # check if player is on already chosen
     temp = Player.verify(data)
-    # print(temp)
+    team = Team.get_one_by_id({'id':tid})
     if temp == False:
         player = Player.get_one_by_id({"id":pid})
-        # Player.add_player_to_team(data)
         Players_on_teams.create(data)
         flash(f"{player.first_name} {player.last_name} Added","err_taken")
+        # socketio.emit('update_team', {'message': f"{player.first_name} {player.last_name} added to team {team.team_name}"})
     else:
         flash(f"{temp.first_name} {temp.last_name} is on another team, Choose again","err_taken")
 
@@ -75,7 +76,8 @@ def player_remove(pid,tid,pool):
 # update player points
 def update_points(data):
     temp_points = 0
-    temp_points = temp_points + (data['Whrse'] * 5)
+    temp_points = temp_points + (data['Whrse'] * 6)
+    temp_points = temp_points + (data['Ton80'] * 5)
     temp_points = temp_points + (data['Hat'] * 2.5)
     temp_points = temp_points + (data['HTon'] * 4.5)
     temp_points = temp_points + (data['LTon']* 1.5)
